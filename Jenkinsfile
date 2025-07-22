@@ -34,15 +34,18 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Stopping containers on required ports and removing previous deployment...'
+                echo 'Stopping containers (quiet) & cleaning previous deployment...'
                 bat '''
-FOR %%P IN (8000 80 3306) DO (
-    FOR /F "tokens=* delims=" %%C IN ('docker ps -q --filter "publish=%%P"') DO (
-    echo Stopping container %%C listening on port %%P
-    docker stop %%C
-    docker rm %%C
+@echo off
+rem Iterate through critical ports and quietly stop any matching containers
+for %%P in (8000 80 3306) do (
+  for /f "tokens=1 delims= " %%I in ('docker ps --format "{{.ID}} {{.Ports}}" ^| findstr "%%P->"') do (
+    echo Stopping container %%I bound to port %%P
+    docker stop -t 5 %%I >nul
+    docker rm   %%I >nul
   )
 )
+rem Bring entire stack down (ignore orphans) and continue
 docker-compose down --remove-orphans
 '''
 
