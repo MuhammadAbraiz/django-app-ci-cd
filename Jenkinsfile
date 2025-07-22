@@ -35,10 +35,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Stopping and removing any existing containers...'
-                bat 'docker compose down'
+                bat 'docker-compose down'
 
                 echo 'Deploying fresh containers...'
-                bat 'docker compose up -d --build'
+                bat 'docker-compose up -d --build'
 
                 echo 'Deployment done.'
             }
