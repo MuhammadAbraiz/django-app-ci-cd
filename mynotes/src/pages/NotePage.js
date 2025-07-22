@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams,useNavigate,Link } from 'react-router-dom'
-// import notes from '../assets/data.js'
+import notes from '../assets/data.js'
 import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
 
 const NotePage = () => {
@@ -65,9 +65,9 @@ const NotePage = () => {
           </Link>
         </h3>
         {id !== 'new' ? (
-          <button onClick={deleteNote}>Delete</button>
+          // <button onClick={deleteNote}>Delete</button>
         ):(
-          <button onClick={handleSubmit}>Save</button>
+          // <button onClick={handleSubmit}>Save</button>
         )}
       </div>
       <div className="note-body">
