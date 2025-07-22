@@ -1,29 +1,43 @@
-@Library('Shared')_
-pipeline{
-    agent { label 'dev-server'}
-    
-    stages{
-        stage("Code clone"){
-            steps{
-                sh "whoami"
-            clone("https://github.com/LondheShubham153/django-notes-app.git","main")
+pipeline {
+    agent { label 'junaid' }
+
+    environment {
+        DOCKER_IMAGE = 'notes-app:latest'
+    }
+
+    stages {
+
+        stage('Code') {
+            steps {
+                echo 'Cloning the repository...'
+                git url: 'https://github.com/devopswithjunaid/django-notes-app.git', branch: 'main'
+                echo 'Code cloned.'
             }
         }
-        stage("Code Build"){
-            steps{
-            dockerbuild("notes-app","latest")
+
+        stage('Build') {
+            steps {
+                echo 'Building Docker image...'
+                sh 'docker build -t $DOCKER_IMAGE .'
+                echo 'Build complete.'
             }
         }
-        stage("Push to DockerHub"){
-            steps{
-                dockerpush("dockerHubCreds","notes-app","latest")
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                // You can uncomment the line below if your app has tests
+                // sh 'docker run --rm $DOCKER_IMAGE python manage.py test'
+                echo 'Testing complete.'
             }
         }
-        stage("Deploy"){
-            steps{
-                deploy()
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
+                sh "docker compose up -d"
+                echo 'Deployment done.'
             }
         }
-        
     }
 }
