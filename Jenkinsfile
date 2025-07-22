@@ -34,8 +34,17 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Stopping and removing any existing containers...'
-                bat 'docker-compose down'
+                echo 'Stopping containers on required ports and removing previous deployment...'
+                bat '''
+FOR %%P IN (8000 80 3306) DO (
+    FOR /F "tokens=* delims=" %%C IN ('docker ps -q --filter "publish=%%P"') DO (
+    echo Stopping container %%C listening on port %%P
+    docker stop %%C
+    docker rm %%C
+  )
+)
+docker-compose down --remove-orphans
+'''
 
                 echo 'Deploying fresh containers...'
                 bat 'docker-compose up -d --build'
