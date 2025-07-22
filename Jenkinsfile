@@ -18,7 +18,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building Docker image (no cache)...'
-                sh 'docker build --no-cache -t $DOCKER_IMAGE .'
+                bat 'docker build --no-cache -t %DOCKER_IMAGE% .'
                 echo 'Build complete.'
             }
         }
@@ -35,10 +35,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Stopping and removing any existing containers...'
-                sh 'docker compose down'
+                bat 'docker compose down'
 
                 echo 'Deploying fresh containers...'
-                sh 'docker compose up -d --build'
+                bat 'docker compose up -d --build'
 
                 echo 'Deployment done.'
             }
