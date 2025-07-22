@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'junaid' }
+    agent any
 
     environment {
         DOCKER_IMAGE = 'notes-app:latest'
@@ -10,7 +10,7 @@ pipeline {
         stage('Code') {
             steps {
                 echo 'Cloning the repository...'
-                git url: 'https://github.com/devopswithjunaid/django-notes-app.git', branch: 'main'
+                git url: 'https://github.com/MuhammadAbraiz/django-app-ci-cd.git', branch: 'main'
                 echo 'Code cloned.'
             }
         }
