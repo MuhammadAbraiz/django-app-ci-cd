@@ -17,8 +17,8 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Building Docker image...'
-                sh 'docker build -t $DOCKER_IMAGE .'
+                echo 'Building Docker image (no cache)...'
+                sh 'docker build --no-cache -t $DOCKER_IMAGE .'
                 echo 'Build complete.'
             }
         }
@@ -26,7 +26,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                // You can uncomment the line below if your app has tests
+                // Uncomment below if tests are added
                 // sh 'docker run --rm $DOCKER_IMAGE python manage.py test'
                 echo 'Testing complete.'
             }
@@ -34,8 +34,12 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploying application...'
-                sh "docker compose up -d"
+                echo 'Stopping and removing any existing containers...'
+                sh 'docker compose down'
+
+                echo 'Deploying fresh containers...'
+                sh 'docker compose up -d --build'
+
                 echo 'Deployment done.'
             }
         }
