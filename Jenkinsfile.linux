@@ -1,0 +1,92 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'notes-app:latest'
+    }
+
+    stages {
+
+        stage('Code') {
+            steps {
+                echo 'Cloning the repository...'
+                git url: 'https://github.com/MuhammadAbraiz/django-app-ci-cd.git', branch: 'main'
+                echo 'Code cloned.'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building Docker image (no cache)...'
+                sh 'docker build --no-cache -t $DOCKER_IMAGE .'
+                echo 'Build complete.'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                // Uncomment below if tests are added
+                // sh 'docker run --rm $DOCKER_IMAGE python manage.py test'
+                echo 'Testing complete.'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Stopping and removing any existing containers...'
+                
+                // Stop containers running on required ports
+                script {
+                    sh '''
+                        # Stop containers on port 8000 (Django)
+                        for container in $(docker ps -q --filter "publish=8000"); do
+                            if [ ! -z "$container" ]; then
+                                echo "Stopping container on port 8000: $container"
+                                docker stop $container >/dev/null 2>&1 || true
+                                docker rm $container >/dev/null 2>&1 || true
+                            fi
+                        done
+                        
+                        # Stop containers on port 80 (Nginx)
+                        for container in $(docker ps -q --filter "publish=80"); do
+                            if [ ! -z "$container" ]; then
+                                echo "Stopping container on port 80: $container"
+                                docker stop $container >/dev/null 2>&1 || true
+                                docker rm $container >/dev/null 2>&1 || true
+                            fi
+                        done
+                        
+                        # Stop containers on port 3306 (MySQL)
+                        for container in $(docker ps -q --filter "publish=3306"); do
+                            if [ ! -z "$container" ]; then
+                                echo "Stopping container on port 3306: $container"
+                                docker stop $container >/dev/null 2>&1 || true
+                                docker rm $container >/dev/null 2>&1 || true
+                            fi
+                        done
+                    '''
+                }
+                
+                sh 'docker-compose down || true'
+
+                echo 'Deploying fresh containers...'
+                sh 'docker-compose up -d --build'
+
+                echo 'Deployment done.'
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline completed.'
+        }
+        success {
+            echo 'Deployment successful! Application is running at http://localhost'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
+        }
+    }
+}
