@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import { useParams,useNavigate,Link } from 'react-router-dom'
+//import React, { useEffect, useState } from 'react'
+//import { useParams,useNavigate,Link } from 'react-router-dom'
 // import notes from '../assets/data.js'
-import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
+//import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
 
 const NotePage = () => {
   let { id }  = useParams();
